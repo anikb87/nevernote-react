@@ -1,0 +1,204 @@
+.App {
+  display: flex;
+  justify-content: space-between;
+  margin: 50px;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+}
+
+.notes-container {
+  width: 40%;
+  border-right: 2px solid #ccc;
+  margin-top: 0;
+  padding-right: 10px;
+}
+
+.input-container {
+  width: 60%;
+  max-width: none;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.note-title-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.rich-text-wrapper {
+  width: 100%;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+}
+
+.ReactQuill {
+  width: 100% !important;
+}
+
+.ql-container {
+  width: 100% !important;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  height: 200px;
+  box-sizing: border-box;
+}
+
+.ql-editor {
+  width: 100% !important;
+  height: 150px;
+  padding: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.add-note-btn,
+.cancel-edit-btn {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 42px;
+  font-size: 14px;
+}
+
+.cancel-edit-btn {
+  background-color: #6c757d;
+}
+
+.cancel-edit-btn:hover {
+  background-color: #5a6268;
+}
+
+.add-note-btn:hover {
+  background-color: #218838;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.note-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 10px 0;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+  text-align: left;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.note-item.active-note {
+  background-color: #eef8ff;
+  border-radius: 5px;
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.note-title {
+  font-weight: bold;
+}
+
+.note-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.trash-icon {
+  color: #dc3545;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.trash-icon:hover {
+  color: #c82333;
+}
+
+.edit-note-icon {
+  color: #007bff;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.edit-note-icon:hover {
+  color: #0056b3;
+}
+
+.note-content-preview {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+.no-notes-message {
+  font-size: 20px;
+  color: #999;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.search-bar-wrapper {
+  position: relative;
+  width: 90%;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 36px 10px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.clear-search {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+}
+
+.clear-search:hover {
+  color: #555;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
