@@ -1,66 +1,64 @@
-const isMock = process.env.NODE_ENV === 'development';
+// src/api.js
 
-// Local mock array
+const isLocal = window.location.hostname === "localhost";
+
+const API_BASE_URL = isLocal
+  ? "http://localhost:3000" // Local backend
+  : "https://nevernote-backend.onrender.com"; // Live backend
+
 let mockNotes = [
   {
-    _id: '1',
-    title: 'Sample Note',
-    content: '<p>This is a mock note.</p>',
-  }
+    id: "1",
+    title: "Sample Note",
+    content: "<p>This is a sample note.</p>",
+  },
 ];
 
-export const fetchNotes = async () => {
-  if (isMock) {
-    return Promise.resolve([...mockNotes]); // return a copy
+export async function getNotes() {
+  if (isLocal) {
+    return Promise.resolve(mockNotes);
   }
-  const res = await fetch('/api/notes');
-  return await res.json();
-};
+  const response = await fetch(`${API_BASE_URL}/notes`, { credentials: "include" });
+  return response.json();
+}
 
-export const createNote = async (note) => {
-  if (isMock) {
-    const newNote = {
-      ...note,
-      _id: Date.now().toString(),
-    };
-    mockNotes.push(newNote); // ✅ only push here, not inside frontend too
+export async function createNote(note) {
+  if (isLocal) {
+    const newNote = { ...note, id: Date.now().toString() };
+    mockNotes.push(newNote);
     return Promise.resolve(newNote);
   }
-
-  const res = await fetch('/api/notes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const response = await fetch(`${API_BASE_URL}/notes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(note),
+    credentials: "include",
   });
-  return await res.json();
-};
+  return response.json();
+}
 
-export const updateNote = async (id, content) => {
-  if (isMock) {
-    const index = mockNotes.findIndex((n) => n._id === id);
-    if (index !== -1) {
-      mockNotes[index].content = content;
-      return Promise.resolve({ ...mockNotes[index] });
-    }
-    return Promise.reject('Note not found');
+export async function updateNote(id, note) {
+  if (isLocal) {
+    mockNotes = mockNotes.map((n) => (n.id === id ? { ...n, ...note } : n));
+    return Promise.resolve(note);
   }
-
-  const res = await fetch(`/api/notes/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content }),
+  const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(note),
+    credentials: "include",
   });
-  return await res.json();
-};
+  return response.json();
+}
 
-export const deleteNote = async (id) => {
-  if (isMock) {
-    mockNotes = mockNotes.filter((n) => n._id !== id);
-    return Promise.resolve({ message: 'Note deleted' });
+export async function deleteNote(id) {
+  if (isLocal) {
+    mockNotes = mockNotes.filter((n) => n.id !== id);
+    return Promise.resolve({ message: "Note deleted" });
   }
-
-  const res = await fetch(`/api/notes/${id}`, {
-    method: 'DELETE',
+  const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    method: "DELETE",
+    credentials: "include",
   });
-  return await res.json();
-};
+  return response.json();
+}
