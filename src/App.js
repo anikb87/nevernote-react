@@ -1,26 +1,31 @@
-import React, { useState, useEffect, useRef } from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import "./App.css";
-import { AiOutlineEdit, AiOutlineDelete, AiOutlineClose } from "react-icons/ai";
+import React, { useState, useEffect, useRef } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import './App.css';
+import { AiOutlineEdit, AiOutlineDelete, AiOutlineClose } from 'react-icons/ai';
 
-import { getNotes, createNote, updateNote, deleteNote } from "./api";
+import {
+  getNotes,
+  createNote,
+  updateNote,
+  deleteNote,
+} from './api';
 
 function App() {
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
+  const [title, setTitle] = useState('');
+  const [note, setNote] = useState('');
   const [notes, setNotes] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedNoteIndex, setExpandedNoteIndex] = useState(null);
   const titleInputRef = useRef(null);
 
   useEffect(() => {
-    const loadNotes = async () => {
+    const load = async () => {
       const data = await getNotes();
       setNotes(data);
     };
-    loadNotes();
+    load();
   }, []);
 
   useEffect(() => {
@@ -33,12 +38,9 @@ function App() {
     if (!title.trim() || !note.trim()) return;
 
     if (editingIndex !== null) {
-      const updated = await updateNote(notes[editingIndex].id, {
-        title,
-        content: note,
-      });
+      const updated = await updateNote(notes[editingIndex].id, { content: note, title });
       const updatedNotes = [...notes];
-      updatedNotes[editingIndex] = updated;
+      updatedNotes[editingIndex] = { ...updatedNotes[editingIndex], content: updated.content, title };
       setNotes(updatedNotes);
       setEditingIndex(null);
     } else {
@@ -46,8 +48,8 @@ function App() {
       setNotes((prev) => [...prev, created]);
     }
 
-    setTitle("");
-    setNote("");
+    setTitle('');
+    setNote('');
   };
 
   const handleEdit = (index) => {
@@ -57,8 +59,8 @@ function App() {
   };
 
   const handleCancelEdit = () => {
-    setTitle("");
-    setNote("");
+    setTitle('');
+    setNote('');
     setEditingIndex(null);
   };
 
@@ -69,14 +71,25 @@ function App() {
     if (expandedNoteIndex === index) setExpandedNoteIndex(null);
   };
 
-  const filteredNotes = notes.filter(
-    (n) =>
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter((n) =>
+    n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    n.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleLogout = () => {
+    localStorage.removeItem('nevernote-user');
+    window.location.reload();
+  };
 
   return (
     <div className="App">
+      <header className="app-header">
+        <h1 className="app-title">NeverNote</h1>
+        <div className="header-right">
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        </div>
+      </header>
+
       <div className="container">
         <div className="notes-container">
           <div className="search-bar-wrapper">
@@ -88,10 +101,7 @@ function App() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
-              <AiOutlineClose
-                className="clear-search"
-                onClick={() => setSearchQuery("")}
-              />
+              <AiOutlineClose className="clear-search" onClick={() => setSearchQuery('')} />
             )}
           </div>
 
@@ -100,18 +110,11 @@ function App() {
           ) : (
             <ul>
               {filteredNotes.map((note, index) => (
-                <li
-                  key={note.id || index}
-                  className={`note-item ${
-                    expandedNoteIndex === index ? "active-note" : ""
-                  }`}
-                >
+                <li key={note.id || index} className={`note-item ${expandedNoteIndex === index ? 'active-note' : ''}`}>
                   <div
                     className="note-header clickable"
                     onClick={() =>
-                      setExpandedNoteIndex(
-                        expandedNoteIndex === index ? null : index
-                      )
+                      setExpandedNoteIndex(expandedNoteIndex === index ? null : index)
                     }
                   >
                     <span className="note-title">{note.title}</span>
@@ -162,12 +165,10 @@ function App() {
           </div>
           <div className="button-row">
             <button className="add-note-btn" onClick={handleAddOrSave}>
-              {editingIndex !== null ? "Save Changes" : "Add Note"}
+              {editingIndex !== null ? 'Save Changes' : 'Add Note'}
             </button>
             {editingIndex !== null && (
-              <button className="cancel-edit-btn" onClick={handleCancelEdit}>
-                Cancel
-              </button>
+              <button className="cancel-edit-btn" onClick={handleCancelEdit}>Cancel</button>
             )}
           </div>
         </div>
