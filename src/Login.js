@@ -1,37 +1,39 @@
-// src/Login.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import React, { useState } from "react";
+import "./Login.css";
 
-function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+function Login({ onLogin }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (username.trim() && password.trim()) {
-      navigate('/app'); // Redirect to App.js
+      localStorage.setItem("nevernote-user", username);
+      onLogin();
+    } else {
+      alert("Please enter username and password");
     }
   };
 
   return (
     <div className="login-container">
-      <h2>NeverNote</h2>
-      <form onSubmit={handleLogin} className="login-form">
+      <h2>Login to NeverNote</h2>
+      <form onSubmit={handleSubmit} className="login-form">
         <input
           type="text"
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          className="login-input"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="login-input"
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-btn">Login</button>
       </form>
     </div>
   );
