@@ -157,6 +157,7 @@ ul {
   width: 100%;
   box-sizing: border-box;
   overflow-wrap: break-word;
+  max-width: 100%; /* Fix for spilling over */
 }
 
 .no-notes-message {
@@ -168,7 +169,7 @@ ul {
 
 .search-bar-wrapper {
   position: relative;
-  width: 90%;
+  width: 100%; /* Changed from 90% to 100% */
 }
 
 .search-bar {
@@ -183,7 +184,7 @@ ul {
 
 .clear-search {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;

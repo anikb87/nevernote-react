@@ -4,19 +4,12 @@ const isLocal = window.location.hostname === "localhost";
 
 const API_BASE_URL = isLocal
   ? "http://localhost:3000" // Local backend
-  : "https://nevernote-backend.onrender.com"; // Live backend
-
-let mockNotes = [
-  {
-    id: "1",
-    title: "Sample Note",
-    content: "<p>This is a sample note.</p>",
-  },
-];
+  : "https://nevernote-express.onrender.com"; // Live backend
 
 export async function getNotes() {
   if (isLocal) {
-    return Promise.resolve(mockNotes);
+    // Return empty array on startup
+    return Promise.resolve([]);
   }
   const response = await fetch(`${API_BASE_URL}/notes`, { credentials: "include" });
   return response.json();
@@ -24,9 +17,8 @@ export async function getNotes() {
 
 export async function createNote(note) {
   if (isLocal) {
-    const newNote = { ...note, id: Date.now().toString() };
-    mockNotes.push(newNote);
-    return Promise.resolve(newNote);
+    // Return new note object
+    return Promise.resolve({ ...note, id: Date.now().toString() });
   }
   const response = await fetch(`${API_BASE_URL}/notes`, {
     method: "POST",
@@ -39,8 +31,7 @@ export async function createNote(note) {
 
 export async function updateNote(id, note) {
   if (isLocal) {
-    mockNotes = mockNotes.map((n) => (n.id === id ? { ...n, ...note } : n));
-    return Promise.resolve(note);
+    return Promise.resolve({ id, ...note });
   }
   const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
     method: "PUT",
@@ -53,7 +44,6 @@ export async function updateNote(id, note) {
 
 export async function deleteNote(id) {
   if (isLocal) {
-    mockNotes = mockNotes.filter((n) => n.id !== id);
     return Promise.resolve({ message: "Note deleted" });
   }
   const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
