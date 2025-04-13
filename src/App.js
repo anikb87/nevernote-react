@@ -4,6 +4,7 @@ import 'react-quill/dist/quill.snow.css';
 import './App.css';
 import { AiOutlineEdit, AiOutlineDelete, AiOutlineClose } from 'react-icons/ai';
 import { getNotes, createNote, updateNote, deleteNote } from './api';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
   const [title, setTitle] = useState('');
@@ -13,15 +14,29 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNoteIndex, setExpandedNoteIndex] = useState(null);
   const titleInputRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     const load = async () => {
-      const data = await getNotes();
-      setNotes(data);
-      setExpandedNoteIndex(null); // ✅ Fix: reset expanded note on login/load
+      try {
+        const data = await getNotes();
+        setNotes(data);
+        setExpandedNoteIndex(null);
+      } catch (err) {
+        console.error('Unauthorized, redirecting to login...');
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     };
+
     load();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (editingIndex !== null && titleInputRef.current) {
@@ -66,6 +81,11 @@ function App() {
     if (expandedNoteIndex === index) setExpandedNoteIndex(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   const filteredNotes = notes.filter((n) =>
     n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     n.content.toLowerCase().includes(searchQuery.toLowerCase())
@@ -76,12 +96,7 @@ function App() {
       <div className="app-header">
         <h1 className="app-title">NeverNote</h1>
         <div className="header-right">
-          <button className="logout-btn" onClick={() => {
-            localStorage.removeItem('token');
-            window.location.reload();
-          }}>
-            Logout
-          </button>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </div>
       <div className="container">

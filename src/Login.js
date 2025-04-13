@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
-import './App.css';
-import { loginUser } from './api';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
-function Login({ setToken }) {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
-    if (!username || !password) return;
     try {
-      const { token } = await loginUser(username, password);
-      localStorage.setItem('token', token);
-      setToken(token);
-    } catch (err) {
-      setError('Invalid username or password');
+      const response = await fetch('https://nevernote-express.onrender.com/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        navigate('/');
+      } else {
+        alert('Invalid username or password');
+      }
+    } catch (error) {
+      console.error('Login failed', error);
+      alert('Login failed');
     }
   };
 
@@ -23,21 +32,22 @@ function Login({ setToken }) {
     <div className="login-container">
       <h2>Login to NeverNote</h2>
       <input
-        className="login-input"
         type="text"
         placeholder="Username"
+        className="login-input"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
-        className="login-input"
         type="password"
         placeholder="Password"
+        className="login-input"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      {error && <p className="login-error">{error}</p>}
-      <button className="login-button" onClick={handleLogin}>Login</button>
+      <button className="login-button" onClick={handleLogin}>
+        Login
+      </button>
     </div>
   );
 }
