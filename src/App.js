@@ -3,13 +3,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './App.css';
 import { AiOutlineEdit, AiOutlineDelete, AiOutlineClose } from 'react-icons/ai';
-import {
-  getNotes,
-  createNote,
-  updateNote,
-  deleteNote,
-} from './api';
-import Login from './Login';
+import { getNotes, createNote, updateNote, deleteNote } from './api';
 
 function App() {
   const [title, setTitle] = useState('');
@@ -18,22 +12,16 @@ function App() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedNoteIndex, setExpandedNoteIndex] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
   const titleInputRef = useRef(null);
 
   useEffect(() => {
-    if (token) {
-      const fetchNotes = async () => {
-        try {
-          const data = await getNotes(token);
-          setNotes(data);
-        } catch (err) {
-          console.error('Error fetching notes:', err);
-        }
-      };
-      fetchNotes();
-    }
-  }, [token]);
+    const load = async () => {
+      const data = await getNotes();
+      setNotes(data);
+      setExpandedNoteIndex(null); // ✅ Fix: reset expanded note on login/load
+    };
+    load();
+  }, []);
 
   useEffect(() => {
     if (editingIndex !== null && titleInputRef.current) {
@@ -44,22 +32,19 @@ function App() {
   const handleAddOrSave = async () => {
     if (!title.trim() || !note.trim()) return;
 
-    try {
-      if (editingIndex !== null) {
-        const updated = await updateNote(notes[editingIndex]._id, { title, content: note }, token);
-        const updatedNotes = [...notes];
-        updatedNotes[editingIndex] = updated;
-        setNotes(updatedNotes);
-        setEditingIndex(null);
-      } else {
-        const created = await createNote({ title, content: note }, token);
-        setNotes((prev) => [...prev, created]);
-      }
-      setTitle('');
-      setNote('');
-    } catch (err) {
-      console.error('Save error:', err);
+    if (editingIndex !== null) {
+      const updated = await updateNote(notes[editingIndex]._id, note);
+      const updatedNotes = [...notes];
+      updatedNotes[editingIndex] = { ...updatedNotes[editingIndex], content: updated.content, title };
+      setNotes(updatedNotes);
+      setEditingIndex(null);
+    } else {
+      const created = await createNote({ title, content: note });
+      setNotes((prev) => [...prev, created]);
     }
+
+    setTitle('');
+    setNote('');
   };
 
   const handleEdit = (index) => {
@@ -75,38 +60,30 @@ function App() {
   };
 
   const handleDelete = async (index) => {
-    try {
-      await deleteNote(notes[index]._id, token);
-      const updated = notes.filter((_, i) => i !== index);
-      setNotes(updated);
-      if (expandedNoteIndex === index) setExpandedNoteIndex(null);
-    } catch (err) {
-      console.error('Delete error:', err);
-    }
+    await deleteNote(notes[index]._id);
+    const filtered = notes.filter((_, i) => i !== index);
+    setNotes(filtered);
+    if (expandedNoteIndex === index) setExpandedNoteIndex(null);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-  };
-
-  const filteredNotes = notes.filter(
-    (n) =>
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter((n) =>
+    n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    n.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  if (!token) return <Login setToken={setToken} />;
 
   return (
     <div className="App">
       <div className="app-header">
         <h1 className="app-title">NeverNote</h1>
         <div className="header-right">
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="logout-btn" onClick={() => {
+            localStorage.removeItem('token');
+            window.location.reload();
+          }}>
+            Logout
+          </button>
         </div>
       </div>
-
       <div className="container">
         <div className="notes-container">
           <div className="search-bar-wrapper">
@@ -118,10 +95,7 @@ function App() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             {searchQuery && (
-              <AiOutlineClose
-                className="clear-search"
-                onClick={() => setSearchQuery('')}
-              />
+              <AiOutlineClose className="clear-search" onClick={() => setSearchQuery('')} />
             )}
           </div>
 
@@ -130,10 +104,7 @@ function App() {
           ) : (
             <ul>
               {filteredNotes.map((note, index) => (
-                <li
-                  key={note._id}
-                  className={`note-item ${expandedNoteIndex === index ? 'active-note' : ''}`}
-                >
+                <li key={note._id || index} className={`note-item ${expandedNoteIndex === index ? 'active-note' : ''}`}>
                   <div
                     className="note-header clickable"
                     onClick={() =>
@@ -160,9 +131,7 @@ function App() {
                   </div>
                   {expandedNoteIndex === index && (
                     <div className="note-content-preview">
-                      <p
-                        dangerouslySetInnerHTML={{ __html: note.content }}
-                      />
+                      <p dangerouslySetInnerHTML={{ __html: note.content }} />
                     </div>
                   )}
                 </li>
