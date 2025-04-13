@@ -1,40 +1,43 @@
-import React, { useState } from "react";
-import "./Login.css";
+import React, { useState } from 'react';
+import './App.css';
+import { loginUser } from './api';
+import './Login.css';
 
-function Login({ onLogin }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+function Login({ setToken }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (username.trim() && password.trim()) {
-      localStorage.setItem("nevernote-user", username);
-      onLogin();
-    } else {
-      alert("Please enter username and password");
+  const handleLogin = async () => {
+    if (!username || !password) return;
+    try {
+      const { token } = await loginUser(username, password);
+      localStorage.setItem('token', token);
+      setToken(token);
+    } catch (err) {
+      setError('Invalid username or password');
     }
   };
 
   return (
     <div className="login-container">
       <h2>Login to NeverNote</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="login-input"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="login-input"
-        />
-        <button type="submit" className="login-btn">Login</button>
-      </form>
+      <input
+        className="login-input"
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        className="login-input"
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {error && <p className="login-error">{error}</p>}
+      <button className="login-button" onClick={handleLogin}>Login</button>
     </div>
   );
 }

@@ -1,11 +1,11 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import Login from "./Login";
-import "./index.css";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+import './App.css';
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-
-const isLoggedIn = localStorage.getItem("nevernote-user");
-
-root.render(isLoggedIn ? <App /> : <Login onLogin={() => window.location.reload()} />);
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
