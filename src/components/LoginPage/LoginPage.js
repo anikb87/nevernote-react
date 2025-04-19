@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
-import './Login.css';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from './api';
+import './LoginPage.css';
 
-function Login() {
+function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-    setError('');
 
-    try {
-      const data = await loginUser(username, password);
-      localStorage.setItem('token', data.token);
-      navigate('/notes');
-    } catch (err) {
-      setError('Invalid username or password');
+    // For demo: allow any combination
+    if (username.trim() && password.trim()) {
+      localStorage.setItem('token', 'mock-token');
+      navigate('/'); // Go to main app page
+    } else {
+      alert('Please enter username and password.');
     }
   };
 
   return (
     <div className="login-container">
-      <h2 className="login-title">Login to NeverNote</h2>
-      <form onSubmit={handleLogin}>
+      <h2 className="login-title">NeverNote Login</h2>
+      <form onSubmit={handleLogin} className="login-form">
         <input
           type="text"
           placeholder="Username"
@@ -40,11 +37,12 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {error && <p className="error-message">{error}</p>}
-        <button type="submit" className="login-button">Login</button>
+        <button type="submit" className="login-button">
+          Login
+        </button>
       </form>
     </div>
   );
 }
 
-export default Login;
+export default LoginPage;

@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import './App.css';
-import { getNotes, createNote, updateNote, deleteNote } from './api';
-import Header from './components/Header/Header';
-import SearchBar from './components/SearchBar/SearchBar';
-import NoteList from './components/NoteList/NoteList';
-import NoteEditor from './components/NoteEditor/NoteEditor';
+
+import Header from '../Header/Header';
+import SearchBar from '../SearchBar/SearchBar';
+import NoteList from '../NoteList/NoteList';
+import NoteEditor from '../NoteEditor/NoteEditor';
+
+import { getNotes, createNote, updateNote, deleteNote } from '../../api';
 
 function App() {
   const [title, setTitle] = useState('');
@@ -19,6 +23,7 @@ function App() {
     const load = async () => {
       const data = await getNotes();
       setNotes(data);
+      setExpandedNoteIndex(null); // collapse on load
     };
     load();
   }, []);
@@ -33,13 +38,9 @@ function App() {
     if (!title.trim() || !note.trim()) return;
 
     if (editingIndex !== null) {
-      const updated = await updateNote(notes[editingIndex]._id, note);
+      const updated = await updateNote(notes[editingIndex]._id, { title, content: note });
       const updatedNotes = [...notes];
-      updatedNotes[editingIndex] = {
-        ...updatedNotes[editingIndex],
-        content: updated.content,
-        title,
-      };
+      updatedNotes[editingIndex] = updated;
       setNotes(updatedNotes);
       setEditingIndex(null);
     } else {
@@ -70,10 +71,9 @@ function App() {
     if (expandedNoteIndex === index) setExpandedNoteIndex(null);
   };
 
-  const filteredNotes = notes.filter(
-    (n) =>
-      n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      n.content.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredNotes = notes.filter((n) =>
+    n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    n.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -81,33 +81,30 @@ function App() {
       <Header />
       <div className="container">
         <div className="notes-container">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+          <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
           {filteredNotes.length === 0 ? (
             <p className="no-notes-message">No Notes!</p>
           ) : (
             <NoteList
               notes={filteredNotes}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              expandedIndex={expandedNoteIndex}
-              setExpandedIndex={setExpandedNoteIndex}
+              expandedNoteIndex={expandedNoteIndex}
+              setExpandedNoteIndex={setExpandedNoteIndex}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
             />
           )}
         </div>
 
         <NoteEditor
           title={title}
-          setTitle={setTitle}
           note={note}
+          setTitle={setTitle}
           setNote={setNote}
-          handleAddOrSave={handleAddOrSave}
-          handleCancelEdit={handleCancelEdit}
-          editingIndex={editingIndex}
           titleInputRef={titleInputRef}
+          handleAddOrSave={handleAddOrSave}
+          editingIndex={editingIndex}
+          handleCancelEdit={handleCancelEdit}
         />
       </div>
     </div>
