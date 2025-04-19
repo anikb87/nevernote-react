@@ -1,30 +1,41 @@
 // src/components/LoginPage/LoginPage.js
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../api";
-import "./LoginPage.css";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './LoginPage.css';
 
-const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+const isLocal = window.location.hostname === "localhost";
+const API_BASE_URL = isLocal
+  ? "http://localhost:3000"
+  : "https://nevernote-express.onrender.com";
+
+function LoginPage() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     console.log("Login button clicked");
-
-    if (!username || !password) {
-      console.warn("Username or password missing");
-      return;
-    }
-
     try {
-      const response = await loginUser(username, password);
-      console.log("Login success:", response);
-      localStorage.setItem("token", response.token);
-      navigate("/app");
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      console.log("Login success:", data);
+
+      if (response.ok && data.token) {
+        localStorage.setItem('token', data.token); // ✅ Save token to localStorage
+        navigate('/'); // redirect to app
+      } else {
+        alert(data.message || 'Login failed');
+      }
     } catch (error) {
-      console.error("Login failed:", error.message);
-      alert("Invalid username or password");
+      console.error('Login error:', error);
+      alert('Login failed');
     }
   };
 
@@ -34,15 +45,15 @@ const LoginPage = () => {
       <input
         type="text"
         placeholder="Username"
-        className="login-input"
         value={username}
+        className="login-input"
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="password"
         placeholder="Password"
-        className="login-input"
         value={password}
+        className="login-input"
         onChange={(e) => setPassword(e.target.value)}
       />
       <button className="login-button" onClick={handleLogin}>
@@ -50,6 +61,6 @@ const LoginPage = () => {
       </button>
     </div>
   );
-};
+}
 
 export default LoginPage;
