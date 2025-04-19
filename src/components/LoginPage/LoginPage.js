@@ -9,6 +9,7 @@ function LoginPage() {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    console.log("Login button clicked");
 
     // For demo: allow any combination
     if (username.trim() && password.trim()) {

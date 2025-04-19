@@ -1,19 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import App from './components/App/App';
-import LoginPage from './components/LoginPage/LoginPage';
-import './index.css'; // Optional: global styles, if needed
+// src/index.js
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LoginPage from "./components/LoginPage/LoginPage";
+import App from "./components/App/App";
+import "./index.css";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <Router>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/notes" element={<App />} />
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/app" element={<App />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   </React.StrictMode>
 );
