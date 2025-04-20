@@ -1,47 +1,35 @@
 // src/components/LoginPage/LoginPage.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
-const isLocal = window.location.hostname === "localhost";
-const API_BASE_URL = isLocal
-  ? "http://localhost:3000"
-  : "https://nevernote-express.onrender.com";
-
-function LoginPage() {
+function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log("Login button clicked");
     try {
-      const response = await fetch(`${API_BASE_URL}/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
-      console.log("Login success:", data);
-
       if (response.ok && data.token) {
-        localStorage.setItem('token', data.token); // ✅ Save token to localStorage
-        navigate('/'); // redirect to app
+        localStorage.setItem('token', data.token);
+        onLogin();
       } else {
-        alert(data.message || 'Login failed');
+        alert('Invalid username or password');
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (err) {
+      console.error('Login error:', err);
       alert('Login failed');
     }
   };
 
   return (
-    <div className="login-container">
-      <h2 className="login-title">Login to NeverNote</h2>
+    <div className="login-page">
+      <h2 className="login-title">NeverNote</h2>
       <input
         type="text"
         placeholder="Username"
